@@ -1,5 +1,5 @@
 import time
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QSizeGrip
 from PyQt5.QtCore import Qt
 from ui.src.views import MainUI, TitleBar
 
@@ -9,9 +9,27 @@ class MainController(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = MainUI()
         self.ui.setupUi(self)
-        # self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint)
+        self.gripSize = 16
+        self.grips = []
+        for i in range(4):
+            grip = QSizeGrip(self)
+            grip.resize(self.gripSize, self.gripSize)
+            self.grips.append(grip)
+
         self._btn_clicked_connect()
         self.show()
+
+
+    def resizeEvent(self, event):
+        QMainWindow.resizeEvent(self, event)
+        rect = self.rect()
+        # bottom right
+        self.grips[2].move(
+            rect.right() - self.gripSize, rect.bottom() - self.gripSize
+        )
+        # bottom left
+        self.grips[3].move(0, rect.bottom() - self.gripSize)
 
     def _btn_clicked_connect(self):
         self.ui.title_bar.btn_close.clicked.connect(
