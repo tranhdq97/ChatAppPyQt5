@@ -5,6 +5,7 @@ from PyQt5.QtGui import QFont
 from ...utils.util import *
 from ...config.config import *
 from ui.src.utils.util import round_corners, set_icon
+from ..title_bar.title_bar import TitleBar
 
 
 class MainUI(object):
@@ -26,13 +27,17 @@ class MainUI(object):
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
         self.h_bg.setSpacing(5)
+        # Title bar
+        self.title_bar = TitleBar(MainWindow)
+        self.pressing = False
         # Left bar
-        self.leftbar = LeftBar()
+        self.left_bar = LeftBar()
         # Body
         self.body = Body()
         # Add to layout
-        self.h_bg.addWidget(self.leftbar)
+        self.h_bg.addWidget(self.left_bar)
         self.h_bg.addWidget(self.body)
+        self.v_central.addWidget(self.title_bar)
         self.v_central.addWidget(self.background)
 
         # 
@@ -48,7 +53,7 @@ class LeftBar(QWidget):
         self.v_central.setSpacing(0)
         # Background
         self.background = QWidget()
-        self.background.setMaximumWidth(100)
+        self.background.setMaximumWidth(90)
         self.background.setStyleSheet('background: rgb(3, 18, 41)')
         self.v_bg = QVBoxLayout(self.background)
         self.v_bg.setContentsMargins(0, 0, 0, 0)
@@ -129,10 +134,13 @@ class TabButton(QPushButton):
     def __init__(self, icon=None, icon_rounded=False):
         super().__init__()
         self.setFlat(True)
-        self.setMinimumSize(100, 100)
-        self.setMaximumSize(100, 100)
+        self.set_size((80, 80))
 
         if icon is not None:
             if icon_rounded:
                 icon = round_corners(icon)
-            set_icon(self, icon, margin=40)
+            set_icon(self, icon, margin=50)
+
+    def set_size(self, size):
+        self.setMinimumSize(*size)
+        self.setMaximumSize(*size)
