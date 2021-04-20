@@ -12,6 +12,8 @@ class Icon(CustomEnum):
     cat             = 'ui/assets/icons/cat.png'
     elephant        = 'ui/assets/icons/elephant.png'
     messenger       = 'ui/assets/icons/messenger.png'
+    maximize        = 'ui/assets/icons/maximize.png'
+    restore         = 'ui/assets/icons/restore.png'
 
 
 class Style(CustomEnum):

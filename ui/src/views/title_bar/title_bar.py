@@ -1,8 +1,10 @@
 import sys
-from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtCore import QPoint, Qt, QSize, QRect
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QPushButton
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from ...utils.util import *
+from ...config.config import *
 
 
 class TitleBar(QWidget):
@@ -12,9 +14,10 @@ class TitleBar(QWidget):
         self.v_central = QVBoxLayout(self)
         self.v_central.setContentsMargins(0, 0, 0, 0)
         self.v_central.setSpacing(0)
-        self.setStyleSheet("background:rgb(3, 18, 30)")
+        self.setStyleSheet("background:rgb(3, 18, 30); color: white")
         self.pressing = False
-        self._is_maximized = False
+        self._restore_pos = None
+        self._restore_size = None
         #
         self.background = QWidget()
         self.h_bg = QHBoxLayout(self.background)
@@ -36,22 +39,69 @@ class TitleBar(QWidget):
         self.btn_min.setStyleSheet(
             f'background:gray; color:white; border-radius:{int(btn_size/2)};')
         # maximize button
-        self.btn_max = QPushButton("+")
+        self.btn_max = QPushButton()
         self.btn_max.setFixedSize(btn_size, btn_size)
         self.btn_max.setStyleSheet(
             f'background:green; color:white; border-radius:{int(btn_size/2)};')
+        set_icon(self.btn_max, Icon.maximize, margin=10)
+        # restore button
+        self.btn_restore = QPushButton()
+        self.btn_restore.setFixedSize(btn_size, btn_size)
+        self.btn_restore.setStyleSheet(
+            f'background:green; color:white; border-radius:{int(btn_size/2)};')
+        set_icon(self.btn_restore, Icon.restore, margin=10)
         # Add to layout
         self.h_bg.addWidget(self.title)
         self.h_bg.addWidget(self.btn_min)
+        self.h_bg.addWidget(self.btn_restore)
         self.h_bg.addWidget(self.btn_max)
         self.h_bg.addWidget(self.btn_close)
         self.v_central.addWidget(self.background)
+        # Init
+        self.set_default()
+
+    def set_default(self):
+        self.btn_restore.hide()
 
     def set_background(self, style):
         self.setStyleSheet(style)
 
     def set_title(self, title):
         self.title.setText(title)
+
+    def close_app(self):
+        self.parent.close()
+
+    def minimize(self):
+        self.parent.showMinimized()
+
+    def maximize(self):
+        self.btn_max.setVisible(False)
+        self.btn_restore.setVisible(True)
+        self._save_restore_info(self.parent.pos(), QSize(self.parent.width(),
+                                self.parent.height()))
+        desktop_rect = QApplication.desktop().availableGeometry()
+        fact_rect = QRect(desktop_rect.x() - 3, desktop_rect.y() - 3,
+                          desktop_rect.width() + 6, desktop_rect.height() + 6)
+        self.parent.setGeometry(fact_rect)
+        self.parent.setFixedSize(desktop_rect.width() + 6, desktop_rect.height() + 6)
+
+    def restore(self):
+        self.btn_max.setVisible(True)
+        self.btn_restore.setVisible(False)
+        window_pos, window_size = self._get_restore_info()
+        self.parent.setGeometry(window_pos.x(), window_pos.y(),
+                                window_size.width(), window_size.height())
+        self.parent.setFixedSize(window_size.width(), window_size.height())
+
+    def _get_restore_info(self):
+        return self._restore_pos, self._restore_size
+
+    def _save_restore_info(self, point, size):
+        self._restore_pos = point
+        self._restore_size = size
+
+    ############################ Signals ################################
 
     # def resizeEvent(self, QResizeEvent):
         # pass
@@ -73,17 +123,3 @@ class TitleBar(QWidget):
 
     def mouseReleaseEvent(self, QMouseEvent):
         self.pressing = False
-
-    def close_app(self):
-        self.parent.close()
-
-    def minimize(self):
-        self.parent.showMinimized()
-
-    def maximize(self):
-        print(self._is_maximized)
-        if not self._is_maximized:
-            self.parent.showMaximized()
-        else:
-            self.parent.resize(self.parent.geometry().size() * 0.7)
-        self._is_maximized = not self._is_maximized

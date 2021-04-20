@@ -9,7 +9,7 @@ class MainController(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = MainUI()
         self.ui.setupUi(self)
-        self.setWindowFlag(Qt.FramelessWindowHint)
+        # self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint)
         self._btn_clicked_connect()
         self.show()
 
@@ -23,6 +23,9 @@ class MainController(QMainWindow):
         self.ui.title_bar.btn_min.clicked.connect(
             self._title_bar_minimize_btn_clicked
         )
+        self.ui.title_bar.btn_restore.clicked.connect(
+            self._title_bar_restore_btn_clicked
+        )
 
     ############################ Title bar ################################
     def _title_bar_close_btn_clicked(self):
@@ -33,3 +36,6 @@ class MainController(QMainWindow):
 
     def _title_bar_maximize_btn_clicked(self):
         self.ui.title_bar.maximize()
+
+    def _title_bar_restore_btn_clicked(self):
+        self.ui.title_bar.restore()
