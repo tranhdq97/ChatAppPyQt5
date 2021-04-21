@@ -18,10 +18,10 @@ class TitleBar(QWidget):
         self.pressing = False
         self._restore_pos = None
         self._restore_size = None
-        #
+        # Background
         self.background = QWidget()
         self.h_bg = QHBoxLayout(self.background)
-        self.h_bg.setContentsMargins(2, 3, 2, 3)
+        self.h_bg.setContentsMargins(2, 5, 2, 5)
         self.h_bg.setSpacing(2)
         # Title
         self.title = QLabel('OK')
@@ -33,18 +33,18 @@ class TitleBar(QWidget):
         self.btn_close.setFixedSize(btn_size, btn_size)
         self.btn_close.setStyleSheet(
             f'background:red; color:white; border-radius:{int(btn_size/2)};')
-        # minimize button 
+        # Minimize button 
         self.btn_min = QPushButton('-')
         self.btn_min.setFixedSize(btn_size, btn_size)
         self.btn_min.setStyleSheet(
             f'background:gray; color:white; border-radius:{int(btn_size/2)};')
-        # maximize button
+        # Maximize button
         self.btn_max = QPushButton()
         self.btn_max.setFixedSize(btn_size, btn_size)
         self.btn_max.setStyleSheet(
             f'background:green; color:white; border-radius:{int(btn_size/2)};')
         set_icon(self.btn_max, Icon.maximize, margin=10)
-        # restore button
+        # Restore button
         self.btn_restore = QPushButton()
         self.btn_restore.setFixedSize(btn_size, btn_size)
         self.btn_restore.setStyleSheet(
@@ -102,9 +102,6 @@ class TitleBar(QWidget):
         self._restore_size = size
 
     ############################ Signals ################################
-
-    # def resizeEvent(self, QResizeEvent):
-        # pass
 
     def mousePressEvent(self, event):
         self.start = self.mapToGlobal(event.pos())

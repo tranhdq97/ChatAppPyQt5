@@ -12,14 +12,17 @@ class MainController(QMainWindow):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint)
         self.gripSize = 16
         self.grips = []
+        # Resize window
         for i in range(4):
             grip = QSizeGrip(self)
+            grip.setVisible(False)
             grip.resize(self.gripSize, self.gripSize)
             self.grips.append(grip)
 
         self._btn_clicked_connect()
         self.show()
 
+    ############################# Signals #############################
 
     def resizeEvent(self, event):
         QMainWindow.resizeEvent(self, event)
@@ -28,8 +31,7 @@ class MainController(QMainWindow):
         self.grips[2].move(
             rect.right() - self.gripSize, rect.bottom() - self.gripSize
         )
-        # bottom left
-        self.grips[3].move(0, rect.bottom() - self.gripSize)
+        self.grips[2].setVisible(True)
 
     def _btn_clicked_connect(self):
         self.ui.title_bar.btn_close.clicked.connect(
@@ -44,8 +46,22 @@ class MainController(QMainWindow):
         self.ui.title_bar.btn_restore.clicked.connect(
             self._title_bar_restore_btn_clicked
         )
+        for tab in self.ui.left_bar.tabs:
+            tab.btn.clicked.connect(
+                lambda checked, t=tab : self._chose_tab(t)
+            )
 
-    ############################ Title bar ################################
+    #########################################################################
+    ######################## Manipulating Funcs #############################
+
+    def _navigate(self, page=None):
+        self.ui.body.add(page)
+
+    def _remove(self, page=None):
+        pass
+
+    ############################ Title bar ##################################
+
     def _title_bar_close_btn_clicked(self):
         self.ui.title_bar.close_app()
     
@@ -57,3 +73,11 @@ class MainController(QMainWindow):
 
     def _title_bar_restore_btn_clicked(self):
         self.ui.title_bar.restore()
+
+    ############################ LeftBar ###############################
+
+    def _chose_tab(self, tab):
+        tab.select()
+        self._navigate(tab.page)
+
+    ############################# Pages ################################
