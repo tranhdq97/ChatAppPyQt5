@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QSizePolicy, QVBoxLayout, QWidget
-from ..base_page import BasePage
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from ..base_page import BasePage, BaseWidget
 from ....config.config import *
 from ....utils.util import *
 
@@ -20,7 +20,7 @@ class ChatPage(BasePage):
 
 ########################## Top ############################
 
-class Top(QWidget):
+class Top(BaseWidget):
     def __init__(self):
         super().__init__()
         # Size policy
@@ -29,11 +29,7 @@ class Top(QWidget):
         size_pf.setHeightForWidth(policy)
         self.setSizePolicy(size_pf)
         self.setStyleSheet('background:rgb(0, 37, 74)')
-        self.v_central = QVBoxLayout(self)
-        self.v_central.setContentsMargins(0, 0, 0, 0)
-        self.v_central.setSpacing(0)
         # Background
-        self.background = QWidget()
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
         self.h_bg.setSpacing(0)
@@ -112,8 +108,8 @@ class InfoBox(QWidget):
         self.avatar.setPixmap(rounded)
 
     def set_status(self, status):
-        self.status.setText(status.value[0])
-        # self.status_icon.setStyleSheet(status.value[1])
+        self.status.setText(status.name)
+        # self.status_icon.setStyleSheet(status.style)
 
     def _set_name(self, name):
         self.name.setText(name)
@@ -125,19 +121,74 @@ class InfoBox(QWidget):
 
     ################################ Body ########################
     
-class Body(QWidget):
+class Body(BaseWidget):
     def __init__(self):
         super().__init__()
         self.setStyleSheet('background: lightgreen')
-        self.v_central = QVBoxLayout(self)
-        self.v_central.setContentsMargins(0, 0, 0, 0)
-        self.v_central.setSpacing(0)
         # Background
-        self.background = QWidget()
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
         self.h_bg.setSpacing(10)
         # dummy
         dummy = QLabel('asdasdasd')
         self.h_bg.addWidget(dummy)
+        # Add to layout
         self.v_central.addWidget(self.background)
+
+
+class ContactHistory(BaseWidget):
+    def __init__(self, background_style, width):
+        super().__init__()
+        self.setStyleSheet(background_style)
+        self.setFixedWidth(width)
+        self.v_bg = QVBoxLayout(self.background)
+        # Scroll Area
+        self.history = QScrollArea()
+        # Add to layout
+        self.v_bg.addWidget(self.history)
+    
+    def add(self, contact):
+        pass
+
+    def remove(self, contact):
+        pass
+
+
+class Contact(BaseWidget):
+    def __init__(self):
+        super().__init__()
+        # size policy
+        size_pf = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        policy = self.sizePolicy().hasHeightForWidth()
+        size_pf.setHeightForWidth(policy)
+        self.setSizePolicy(size_pf)
+        self.v_bg = QVBoxLayout(self.background)
+        # Status
+        self.online_time = QLabel("Right Now")
+        self.staonline_timetus.setFont(QFont('Ubuntu', 8))
+        self.online_time.setStyleSheet('color:white')
+        self.online_time.setAlignment(Qt.AlignRight)
+        # Contact info
+        self.avatar = QLabel(round_corners(Icon.user))
+        self.avatar.setFixedSize(50, 50)
+        self.avatar.setScaledContents(True)
+
+        # Add to layout:
+        self.v_bg.addWidget(self.online_time)
+        self.v_bg.addWidget(self.avatars)
+    
+    def mousePressEvent(self, event):
+        print('Pressed in Contact')
+
+
+class Conversation(BaseWidget):
+    def __init__(self):
+        super().__init__()
+        self.v_bg = QVBoxLayout(self.background)
+        # 
+
+
+class ChatPiece(QWidget):
+    def __init__(self):
+        super().__init__()
+        pass

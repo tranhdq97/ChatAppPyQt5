@@ -1,6 +1,7 @@
 from enum import Enum
 from enum import unique
 from collections import namedtuple
+from os import stat
 
 
 class CustomEnum(Enum):
@@ -16,14 +17,16 @@ class Icon(CustomEnum):
     maximize        = 'ui/assets/icons/maximize.png'
     restore         = 'ui/assets/icons/restore.png'
     search          = 'ui/assets/icons/search.png'
+    user            = 'ui/assets/icons/user.png'
 
 
+status = namedtuple('Status', ['name', 'style'])
 @unique
-class Status(Enum):
-    online          = ["Active Now", "QLabel {background:rgb(0, 196, 0)}"]
-    busy            = ["Busy", "QLabel {background:rgb(230, 30, 16)}"]
-    away            = ["Away", "QLabel {background:rgb(237, 142, 0)}"]
-    offline         = ["Offline", "QLabel {background:rgb(207, 207, 207)}"]
+class Status(CustomEnum):
+    online          = status("Active Now", "QLabel {background:rgb(0, 196, 0)}")
+    busy            = status("Busy", "QLabel {background:rgb(230, 30, 16)}")
+    away            = status("Away", "QLabel {background:rgb(237, 142, 0)}")
+    offline         = status("Offline", "QLabel {background:rgb(207, 207, 207)}")
 
 
 class Style(object):
