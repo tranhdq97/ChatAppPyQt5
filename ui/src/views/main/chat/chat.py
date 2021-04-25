@@ -1,5 +1,6 @@
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+from os import name
+from PyQt5.QtGui import QFont, QTextBlockUserData
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 from ..base_page import BasePage, BaseWidget
 from ....config.config import *
 from ....utils.util import *
@@ -21,6 +22,11 @@ class ChatPage(BasePage):
 ########################## Top ############################
 
 class Top(BaseWidget):
+    """[summary]
+
+    Args:
+        BaseWidget ([type]): [description]
+    """
     def __init__(self):
         super().__init__()
         # Size policy
@@ -28,7 +34,7 @@ class Top(BaseWidget):
         policy = self.sizePolicy().hasHeightForWidth()
         size_pf.setHeightForWidth(policy)
         self.setSizePolicy(size_pf)
-        self.setStyleSheet('background:rgb(0, 37, 74)')
+        self.setStyleSheet('background:rgb(0, 75, 100)')
         # Background
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
@@ -42,6 +48,11 @@ class Top(BaseWidget):
 
 
 class SearchBox(QWidget):
+    """[summary]
+
+    Args:
+        QWidget ([type]): [description]
+    """
     def __init__(self):
         super().__init__()
         self.h_layout = QHBoxLayout(self)
@@ -52,7 +63,9 @@ class SearchBox(QWidget):
         self.search_icon.setPixmap(QPixmap(Icon.search))
         # Search entry
         self.search_entry = QLineEdit()
-        self.search_entry.setFont(QFont('Ubuntu', 10))
+        self.search_entry.setContentsMargins(5, 8, 5, 8)
+        self.search_entry.setStyleSheet('color:rgb(230, 230, 230)')
+        self.search_entry.setFont(QFont('Ubuntu', 12))
         self.search_entry.setPlaceholderText('Search in your box')
         # Add to layout
         self.h_layout.addWidget(self.search_icon)
@@ -68,6 +81,11 @@ class SearchBox(QWidget):
 
 
 class InfoBox(QWidget):
+    """[summary]
+
+    Args:
+        QWidget ([type]): [description]
+    """
     def __init__(self):
         super().__init__()
         self.h_layout = QHBoxLayout(self)
@@ -122,6 +140,11 @@ class InfoBox(QWidget):
     ################################ Body ########################
     
 class Body(BaseWidget):
+    """[summary]
+
+    Args:
+        BaseWidget ([type]): [description]
+    """
     def __init__(self):
         super().__init__()
         self.setStyleSheet('background: lightgreen')
@@ -129,32 +152,54 @@ class Body(BaseWidget):
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
         self.h_bg.setSpacing(10)
-        # dummy
-        dummy = QLabel('asdasdasd')
-        self.h_bg.addWidget(dummy)
+        # Contact history
+        self.contact_history = ContactHistory()
+
         # Add to layout
+        self.v_central.addWidget(self.contact_history)
         self.v_central.addWidget(self.background)
 
 
 class ContactHistory(BaseWidget):
-    def __init__(self, background_style, width):
+    """[summary]
+
+    Args:
+        BaseWidget ([type]): [description]
+    """
+    def __init__(self):
         super().__init__()
-        self.setStyleSheet(background_style)
-        self.setFixedWidth(width)
+        self.setStyleSheet('background:rgb(0, 75, 100)')
+        self.setFixedWidth(300)
         self.v_bg = QVBoxLayout(self.background)
         # Scroll Area
         self.history = QScrollArea()
+        self.history.setFrameStyle(QFrame.NoFrame)
+        self.history.setWidgetResizable(True)
+        self.history.setStyleSheet(Style.scroll_area)
+        self.history_contents = QWidget()
+        self.v_h_c = QVBoxLayout(self.history_contents)
+        self.v_h_c.setContentsMargins(0, 0, 0, 0)
+        self.v_h_c.setSpacing(10)
+        self.v_h_c.setAlignment(Qt.AlignTop)
         # Add to layout
+        self.history.setWidget(self.history_contents)
         self.v_bg.addWidget(self.history)
+        for i in range (10):
+            self.add(Contact())
     
     def add(self, contact):
-        pass
-
+        self.v_h_c.addWidget(contact)
+        
     def remove(self, contact):
         pass
 
 
 class Contact(BaseWidget):
+    """[summary]
+
+    Args:
+        BaseWidget ([type]): [description]
+    """
     def __init__(self):
         super().__init__()
         # size policy
@@ -162,33 +207,67 @@ class Contact(BaseWidget):
         policy = self.sizePolicy().hasHeightForWidth()
         size_pf.setHeightForWidth(policy)
         self.setSizePolicy(size_pf)
-        self.v_bg = QVBoxLayout(self.background)
+        self.h_bg = QHBoxLayout(self.background)
+        self.background.setStyleSheet(
+            'background:rgb(0, 45, 60); border-radius: 20px')
+        # Font
+        online_time_font = QFont('Ubuntu', 8)
+        name_font = QFont('Ubuntu', 14, QFont.Bold)
+        last_msg_font = QFont('Ubuntu', 10)
         # Status
         self.online_time = QLabel("Right Now")
-        self.staonline_timetus.setFont(QFont('Ubuntu', 8))
         self.online_time.setStyleSheet('color:white')
         self.online_time.setAlignment(Qt.AlignRight)
+        self.online_time.setFont(online_time_font)
         # Contact info
-        self.avatar = QLabel(round_corners(Icon.user))
+        self.avatar = QLabel()
+        self.avatar.setPixmap(round_corners(Icon.cat))
         self.avatar.setFixedSize(50, 50)
         self.avatar.setScaledContents(True)
-
+        # User name
+        self.name = QLabel('Dong Quoc Tranh')
+        self.name.setStyleSheet('color:white')
+        self.name.setAlignment(Qt.AlignLeft)
+        self.name.setFont(name_font)
+        # The last massage
+        self.last_msg = QLabel('Helllo adsssss .....')
+        self.last_msg.setStyleSheet('color:rgb(200, 200, 200)')
+        self.last_msg.setContentsMargins(5, 0, 0, 0)
+        self.last_msg.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.last_msg.setFont(last_msg_font)
+        # Person info
+        self.v_layout = QVBoxLayout()
+        self.v_layout.setSpacing(0)
+        self.v_layout.addWidget(self.online_time)
+        self.v_layout.addWidget(self.name)
+        self.v_layout.addSpacing(5)
+        self.v_layout.addWidget(self.last_msg)
         # Add to layout:
-        self.v_bg.addWidget(self.online_time)
-        self.v_bg.addWidget(self.avatars)
+        self.h_bg.addWidget(self.avatar)
+        self.h_bg.addLayout(self.v_layout)
     
     def mousePressEvent(self, event):
-        print('Pressed in Contact')
+        print('Pressed in ', self.name.text())
 
 
 class Conversation(BaseWidget):
+    """[summary]
+
+    Args:
+        BaseWidget ([type]): [description]
+    """
     def __init__(self):
         super().__init__()
         self.v_bg = QVBoxLayout(self.background)
         # 
 
 
-class ChatPiece(QWidget):
+class ChatPiece(BaseWidget):
+    """[summary]
+
+    Args:
+        QWidget ([type]): [description]
+    """
     def __init__(self):
         super().__init__()
         pass

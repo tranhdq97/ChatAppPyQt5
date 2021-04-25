@@ -14,7 +14,7 @@ class TitleBar(QWidget):
         self.v_central = QVBoxLayout(self)
         self.v_central.setContentsMargins(0, 0, 0, 0)
         self.v_central.setSpacing(0)
-        self.setStyleSheet("background:rgb(3, 18, 30); color: white")
+        self.setStyleSheet("background:rgb(3, 18, 25); color: white")
         self.pressing = False
         self._restore_pos = None
         self._restore_size = None
@@ -24,11 +24,12 @@ class TitleBar(QWidget):
         self.h_bg.setContentsMargins(2, 5, 2, 5)
         self.h_bg.setSpacing(2)
         # Title
-        self.title = QLabel('OK')
+        self.title = QLabel('Chat application created by TranhDQ')
         self.title.setAlignment(Qt.AlignCenter)
-        self.title.setFont(QFont('Ubuntu', 12, QFont.Bold))
+        self.title.setFont(QFont('Ubuntu', 10, QFont.Bold))
+        self.title.setStyleSheet('color:rgb(209, 227, 255)')
         # close button
-        btn_size = 25
+        btn_size = 20
         self.btn_close = QPushButton("x")
         self.btn_close.setFixedSize(btn_size, btn_size)
         self.btn_close.setStyleSheet(
@@ -43,13 +44,13 @@ class TitleBar(QWidget):
         self.btn_max.setFixedSize(btn_size, btn_size)
         self.btn_max.setStyleSheet(
             f'background:green; color:white; border-radius:{int(btn_size/2)};')
-        set_icon(self.btn_max, Icon.maximize, margin=10)
+        set_icon(self.btn_max, Icon.maximize, margin=6)
         # Restore button
         self.btn_restore = QPushButton()
         self.btn_restore.setFixedSize(btn_size, btn_size)
         self.btn_restore.setStyleSheet(
             f'background:green; color:white; border-radius:{int(btn_size/2)};')
-        set_icon(self.btn_restore, Icon.restore, margin=10)
+        set_icon(self.btn_restore, Icon.restore, margin=6)
         # Add to layout
         self.h_bg.addWidget(self.title)
         self.h_bg.addWidget(self.btn_min)

@@ -3,6 +3,8 @@ from enum import unique
 from collections import namedtuple
 from os import stat
 
+from PyQt5.QtWidgets import QScrollArea
+
 
 class CustomEnum(Enum):
     def __get__(self, *args):
@@ -31,9 +33,18 @@ class Status(CustomEnum):
 
 class Style(object):
     border = 'border:2px solid red'
+    scroll_area = """
+        QScrollArea {border:none;}
+        QScrollBar {background:transparent;}
+        QScrollBar:vertical {width: 6px;}
+        QScrollBar::handle {background:green; border-radius: 3px;}
+        QScrollBar::handle:vertical {width: 10px; min-height: 10px;}
+        QScrollBar::add-line {border: none; background: none;}
+        QScrollBar::sub-line {border: none; background: none;}   
+    """
 
     class Tab(CustomEnum):
-        chosen_bg           = 'background:rgb(81, 121, 194)'
+        chosen_bg           = 'background:rgb(0, 75, 100)'
 
 
 class Tab(CustomEnum):
