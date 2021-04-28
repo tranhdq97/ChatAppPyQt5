@@ -2,3 +2,5 @@ PyQt5.sip
 sip
 PyQt5==5.15.4
 pyqtchart==5.15.4
+opencv-python==4.2.*
+matplotlib
