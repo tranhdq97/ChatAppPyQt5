@@ -20,7 +20,6 @@ class MainController(QMainWindow):
             self.grips.append(grip)
 
         self._btn_clicked_connect()
-        self.show()
 
     ############################# Signals #############################
 

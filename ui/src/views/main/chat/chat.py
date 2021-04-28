@@ -152,15 +152,15 @@ class Body(BaseWidget):
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
         self.h_bg.setSpacing(10)
-        # Contact history
-        self.contact_history = ContactHistory()
+        # Participant history
+        self.Participant_history = Chats()
 
         # Add to layout
-        self.v_central.addWidget(self.contact_history)
+        self.v_central.addWidget(self.Participant_history)
         self.v_central.addWidget(self.background)
 
 
-class ContactHistory(BaseWidget):
+class Chats(BaseWidget):
     """[summary]
 
     Args:
@@ -171,6 +171,7 @@ class ContactHistory(BaseWidget):
         self.setStyleSheet('background:rgb(0, 75, 100)')
         self.setFixedWidth(300)
         self.v_bg = QVBoxLayout(self.background)
+        self._participants = []
         # Scroll Area
         self.history = QScrollArea()
         self.history.setFrameStyle(QFrame.NoFrame)
@@ -185,16 +186,17 @@ class ContactHistory(BaseWidget):
         self.history.setWidget(self.history_contents)
         self.v_bg.addWidget(self.history)
         for i in range (10):
-            self.add(Contact())
+            self.add(Participant())
     
-    def add(self, contact):
-        self.v_h_c.addWidget(contact)
+    def add(self, Participant):
+        self.v_h_c.addWidget(Participant)
+        self._participants.append(Participant)
         
-    def remove(self, contact):
+    def remove(self, Participant):
         pass
 
 
-class Contact(BaseWidget):
+class Participant(BaseWidget):
     """[summary]
 
     Args:
@@ -202,6 +204,7 @@ class Contact(BaseWidget):
     """
     def __init__(self):
         super().__init__()
+        self._conversation = None
         # size policy
         size_pf = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         policy = self.sizePolicy().hasHeightForWidth()
@@ -214,12 +217,7 @@ class Contact(BaseWidget):
         online_time_font = QFont('Ubuntu', 8)
         name_font = QFont('Ubuntu', 14, QFont.Bold)
         last_msg_font = QFont('Ubuntu', 10)
-        # Status
-        self.online_time = QLabel("Right Now")
-        self.online_time.setStyleSheet('color:white')
-        self.online_time.setAlignment(Qt.AlignRight)
-        self.online_time.setFont(online_time_font)
-        # Contact info
+        # Participant info
         self.avatar = QLabel()
         self.avatar.setPixmap(round_corners(Icon.cat))
         self.avatar.setFixedSize(50, 50)
@@ -235,19 +233,42 @@ class Contact(BaseWidget):
         self.last_msg.setContentsMargins(5, 0, 0, 0)
         self.last_msg.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.last_msg.setFont(last_msg_font)
+        # Activity time
+        self.online_time = QLabel("Right Now")
+        self.online_time.setWordWrap(True)
+        self.online_time.setStyleSheet('color:white')
+        self.online_time.setAlignment(Qt.AlignRight)
+        self.online_time.setFont(online_time_font)
+        self.h_activity = QHBoxLayout()
+        self.h_activity.setContentsMargins(1, 1, 1, 1)
+        self.h_activity.setSpacing(5)
+        self.h_activity.addWidget(self.last_msg)
+        self.h_activity.addWidget(self.online_time)
         # Person info
         self.v_layout = QVBoxLayout()
-        self.v_layout.setSpacing(0)
-        self.v_layout.addWidget(self.online_time)
         self.v_layout.addWidget(self.name)
         self.v_layout.addSpacing(5)
-        self.v_layout.addWidget(self.last_msg)
+        self.v_layout.addLayout(self.h_activity)
         # Add to layout:
         self.h_bg.addWidget(self.avatar)
         self.h_bg.addLayout(self.v_layout)
     
     def mousePressEvent(self, event):
         print('Pressed in ', self.name.text())
+
+    @property
+    def name(self):
+        return self.name.text()
+
+    def set_default(self):
+        self._conversation = Conversation()
+
+    def send(self, text):
+        pass
+
+    def receive(self, text):
+        pass
+
 
 
 class Conversation(BaseWidget):
