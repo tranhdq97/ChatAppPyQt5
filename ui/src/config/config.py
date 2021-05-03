@@ -38,6 +38,7 @@ class Style(object):
         QScrollArea {border:none;}
         QScrollBar {background:transparent;}
         QScrollBar:vertical {width: 6px;}
+        QScrollBar:horizontal {height: 6px;}
         QScrollBar::handle {background:green; border-radius: 3px;}
         QScrollBar::handle:vertical {width: 10px; min-height: 10px;}
         QScrollBar::add-line {border: none; background: none;}
