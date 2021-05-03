@@ -20,6 +20,7 @@ class Icon(CustomEnum):
     restore         = 'ui/assets/icons/restore.png'
     search          = 'ui/assets/icons/search.png'
     user            = 'ui/assets/icons/user.png'
+    contacts        = 'ui/assets/icons/contacts.png'
 
 
 status = namedtuple('Status', ['name', 'style'])
@@ -50,3 +51,5 @@ class Style(object):
 class Tab(CustomEnum):
     chat                    = 'Chat'
     home                    = 'Home'
+
+

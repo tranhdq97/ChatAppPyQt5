@@ -1,6 +1,9 @@
-from os import name
-from PyQt5.QtGui import QFont, QTextBlockUserData
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
+import os
+from datetime import date, datetime
+from typing import Container
+from PyQt5.QtGui import QFont, QFontMetrics
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStackedWidget, QTextEdit
+from PyQt5.QtWidgets import QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 from ..base_page import BasePage, BaseWidget
 from ....config.config import *
 from ....utils.util import *
@@ -22,10 +25,7 @@ class ChatPage(BasePage):
 ########################## Top ############################
 
 class Top(BaseWidget):
-    """[summary]
-
-    Args:
-        BaseWidget ([type]): [description]
+    """ Containes searching place and Talker's information.
     """
     def __init__(self):
         super().__init__()
@@ -34,13 +34,13 @@ class Top(BaseWidget):
         policy = self.sizePolicy().hasHeightForWidth()
         size_pf.setHeightForWidth(policy)
         self.setSizePolicy(size_pf)
-        self.setStyleSheet('background:rgb(0, 75, 100)')
+        self.setStyleSheet('background:rgb(60, 90, 100)')
         # Background
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
         self.h_bg.setSpacing(0)
         self.search_box = SearchBox()
-        self.info_box = InfoBox()
+        self.info_box = TalkerInfo()
         # Add to layout
         self.h_bg.addWidget(self.search_box)
         self.h_bg.addWidget(self.info_box)
@@ -48,18 +48,16 @@ class Top(BaseWidget):
 
 
 class SearchBox(QWidget):
-    """[summary]
-
-    Args:
-        QWidget ([type]): [description]
+    """ Conversation or friend is searched by using name of person.
     """
     def __init__(self):
         super().__init__()
         self.h_layout = QHBoxLayout(self)
+        self.on_contacts = False
         # Search a person
         self.search_icon = QLabel()
         self.search_icon.setScaledContents(True)
-        self.search_icon.setFixedSize(30, 30)
+        self.search_icon.setFixedSize(27, 27)
         self.search_icon.setPixmap(QPixmap(Icon.search))
         # Search entry
         self.search_entry = QLineEdit()
@@ -67,9 +65,15 @@ class SearchBox(QWidget):
         self.search_entry.setStyleSheet('color:rgb(230, 230, 230)')
         self.search_entry.setFont(QFont('Ubuntu', 12))
         self.search_entry.setPlaceholderText('Search in your box')
+        # Contacts
+        self.contacts = QPushButton()
+        self.contacts.setFixedSize(35, 35)
+        self.contacts.setFlat(True)
+        set_icon(self.contacts, Icon.contacts)
         # Add to layout
         self.h_layout.addWidget(self.search_icon)
         self.h_layout.addWidget(self.search_entry)
+        self.h_layout.addWidget(self.contacts)
         self.set_default()
         self.set_width(300)
 
@@ -79,12 +83,18 @@ class SearchBox(QWidget):
     def set_default(self):
         self.search_entry.setText("")
 
+    def switch_contacts(self):
+        if self.on_contacts: # to chats
+            self.contacts.setStyleSheet(
+                'QPushButton {background:transparent;border-radius: 3px}')
+        else:
+            self.contacts.setStyleSheet(
+                'QPushButton {background:rgb(100,100,200);border-radius: 3px}')
+        self.on_contacts = not self.on_contacts
 
-class InfoBox(QWidget):
-    """[summary]
 
-    Args:
-        QWidget ([type]): [description]
+class TalkerInfo(QWidget):
+    """ Contains some basic info of partner that user talks to.
     """
     def __init__(self):
         super().__init__()
@@ -140,31 +150,34 @@ class InfoBox(QWidget):
     ################################ Body ########################
     
 class Body(BaseWidget):
-    """[summary]
-
-    Args:
-        BaseWidget ([type]): [description]
+    """ Contains conversations' info, contacts and messages of current conversation. 
     """
     def __init__(self):
         super().__init__()
-        self.setStyleSheet('background: lightgreen')
         # Background
         self.h_bg = QHBoxLayout(self.background)
         self.h_bg.setContentsMargins(0, 0, 0, 0)
         self.h_bg.setSpacing(10)
-        # Participant history
-        self.Participant_history = Chats()
-
+        # history
+        self.history = Chats()
+        self.conversation = Conversation()
         # Add to layout
-        self.v_central.addWidget(self.Participant_history)
+        self.h_bg.addWidget(self.history)
+        self.h_bg.addWidget(self.conversation)
         self.v_central.addWidget(self.background)
 
+    def resizeEvent(self, a0):
+        if self.width() < 700:
+            self.history.setVisible(False)
+        else:
+            self.history.setVisible(True)
+        return super().resizeEvent(a0)
+
+    ##################################### Chats
 
 class Chats(BaseWidget):
-    """[summary]
-
-    Args:
-        BaseWidget ([type]): [description]
+    """ Contains history of conversations which each conversation includes
+        talker's name, avatar, last message,...
     """
     def __init__(self):
         super().__init__()
@@ -172,35 +185,92 @@ class Chats(BaseWidget):
         self.setFixedWidth(300)
         self.v_bg = QVBoxLayout(self.background)
         self._participants = []
+        self._on_chats = True
+        # self.contra
         # Scroll Area
-        self.history = QScrollArea()
-        self.history.setFrameStyle(QFrame.NoFrame)
-        self.history.setWidgetResizable(True)
-        self.history.setStyleSheet(Style.scroll_area)
-        self.history_contents = QWidget()
-        self.v_h_c = QVBoxLayout(self.history_contents)
-        self.v_h_c.setContentsMargins(0, 0, 0, 0)
-        self.v_h_c.setSpacing(10)
-        self.v_h_c.setAlignment(Qt.AlignTop)
+        self.history = PersonContainer()
+        self.contacts = PersonContainer()
         # Add to layout
-        self.history.setWidget(self.history_contents)
         self.v_bg.addWidget(self.history)
+        self.v_bg.addWidget(self.contacts)
+
         for i in range (10):
-            self.add(Participant())
+            self.add_convo(Talker())
+
+        for i in range (1):
+            self.add_friend(Talker())
+
+        # Init
+        self.set_default()
     
-    def add(self, Participant):
-        self.v_h_c.addWidget(Participant)
-        self._participants.append(Participant)
+    def add_convo(self, talker):
+        """ Adds new coversation.
+
+        Args:
+            talker (Talker): New partner.
+        """
+        self.history.v_content.addWidget(talker)
+        self._participants.append(talker)
         
-    def remove(self, Participant):
+    def remove_convo(self, talker):
+        """ Removes talker out of history list.
+
+        Args:
+            talker (Talker]): Ui of person who used to chat.
+        """
         pass
 
+    def add_friend(self, friend):
+        """ Adds new friend to contact list.
 
-class Participant(BaseWidget):
-    """[summary]
+        Args:
+            friend: new friend.
+        """
+        self.contacts.v_content.addWidget(friend)
 
-    Args:
-        BaseWidget ([type]): [description]
+    def remove_friend(self, friend):
+        """ Removes specific friend of of contact list.
+
+        Args:
+            friend (Friend): friend object
+        """
+        pass
+
+    def set_default(self):
+        self.history.setVisible(True)
+        self.contacts.setVisible(False)
+
+    def switch(self, on_contacts):
+        """ Switchs between contacts and chats.
+        """
+        if on_contacts: # chats
+            self.history.setVisible(True)
+            self.contacts.setVisible(False)
+        else:
+            self.history.setVisible(False)
+            self.contacts.setVisible(True)
+
+
+class PersonContainer(QScrollArea):
+    """ This container contains view of individuals (friends or talkers).
+    """
+    def __init__(self):
+        super().__init__()
+        self.setFrameStyle(QFrame.NoFrame)
+        self.setContentsMargins(-1, 0, -1, 0)
+        self.setWidgetResizable(True)
+        self.setStyleSheet(Style.scroll_area)
+        # Widget content
+        self.content = QWidget()
+        self.v_content = QVBoxLayout(self.content)
+        self.v_content.setContentsMargins(0, 0, 0, 0)
+        self.v_content.setSpacing(10)
+        self.v_content.setAlignment(Qt.AlignTop)
+        self.setWidget(self.content)
+
+
+class Talker(BaseWidget):
+    """ A conversation.
     """
     def __init__(self):
         super().__init__()
@@ -217,16 +287,17 @@ class Participant(BaseWidget):
         online_time_font = QFont('Ubuntu', 8)
         name_font = QFont('Ubuntu', 14, QFont.Bold)
         last_msg_font = QFont('Ubuntu', 10)
-        # Participant info
+        # talker info
+        # self.avatar = AvatarWithStatus()
         self.avatar = QLabel()
-        self.avatar.setPixmap(round_corners(Icon.cat))
         self.avatar.setFixedSize(50, 50)
         self.avatar.setScaledContents(True)
+        self.avatar.setPixmap(round_corners(Icon.cat))
         # User name
-        self.name = QLabel('Dong Quoc Tranh')
-        self.name.setStyleSheet('color:white')
-        self.name.setAlignment(Qt.AlignLeft)
-        self.name.setFont(name_font)
+        self.username = QLabel('Dong Quoc Tranh')
+        self.username.setStyleSheet('color:white')
+        self.username.setAlignment(Qt.AlignLeft)
+        self.username.setFont(name_font)
         # The last massage
         self.last_msg = QLabel('Helllo adsssss .....')
         self.last_msg.setStyleSheet('color:rgb(200, 200, 200)')
@@ -246,7 +317,7 @@ class Participant(BaseWidget):
         self.h_activity.addWidget(self.online_time)
         # Person info
         self.v_layout = QVBoxLayout()
-        self.v_layout.addWidget(self.name)
+        self.v_layout.addWidget(self.username)
         self.v_layout.addSpacing(5)
         self.v_layout.addLayout(self.h_activity)
         # Add to layout:
@@ -254,11 +325,11 @@ class Participant(BaseWidget):
         self.h_bg.addLayout(self.v_layout)
     
     def mousePressEvent(self, event):
-        print('Pressed in ', self.name.text())
+        print('Pressed in ', self.username.text())
 
     @property
     def name(self):
-        return self.name.text()
+        return self.username.text()
 
     def set_default(self):
         self._conversation = Conversation()
@@ -270,25 +341,231 @@ class Participant(BaseWidget):
         pass
 
 
-
-class Conversation(BaseWidget):
-    """[summary]
-
-    Args:
-        BaseWidget ([type]): [description]
-    """
-    def __init__(self):
-        super().__init__()
-        self.v_bg = QVBoxLayout(self.background)
-        # 
-
-
-class ChatPiece(BaseWidget):
-    """[summary]
-
-    Args:
-        QWidget ([type]): [description]
+class Friend(BaseWidget):
+    """ Ui of a friend.
     """
     def __init__(self):
         super().__init__()
         pass
+
+    ##################################### Conversation
+
+class Conversation(BaseWidget):
+    """ Contains messages of a conversation.
+    """
+    def __init__(self):
+        super().__init__()
+        self._last_sender = None
+        self.v_bg = QVBoxLayout(self.background)
+        self.setMinimumWidth(300)
+        # Scroller
+        self.convo = PersonContainer()
+        self.msg_entry = MessageEnter()
+        self.msg_entry.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        # Add to layout
+        self.v_bg.addWidget(self.convo)
+        self.v_bg.addWidget(self.msg_entry)
+
+    def send(self, content):
+        if self._last_sender is not None and self._last_sender.name == User.name:
+            self._last_sender.send(content)
+        else:           
+            user = User()
+            user.send(content)
+            self.convo.v_content.addWidget(user)
+            self._last_sender = user
+
+        
+    def receive(self, content):
+        if self._last_sender is not None and self._last_sender.name == Partner.name:
+            self._last_sender.send(content)
+        else:
+            partner = Partner()
+            partner.send(content)
+            self.convo.v_content.addWidget(partner)
+            self._last_sender = partner
+
+
+class ChatPiece(BaseWidget):
+    """ Groups messages of a person.
+    """
+    def __init__(self, message_style):
+        super().__init__()
+        self._message_style = message_style
+        self.background.setStyleSheet('background:transparent')
+        self.background.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        time_font = QFont('Ubuntu', 10)
+        self.fm = QFontMetrics(time_font)
+        self._messages = []
+        # background layout
+        self.h_background = QHBoxLayout(self.background)
+        # Massage layout
+        self.v_messages = QVBoxLayout()
+        self.v_messages.setSpacing(1)
+        # Time
+        self._date = datetime.today()
+        self._time = datetime.now()
+        self.time = QLabel(f'{self._time.strftime("%H:%M:%S")}')
+        self.time.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.time.setFont(time_font)
+        self.time.setStyleSheet('color:rgb(150,150,150)')
+        # Add to layout
+        self.v_time_msg = QVBoxLayout()
+        self.v_time_msg.addWidget(self.time)
+        self.v_time_msg.addLayout(self.v_messages)
+        self.h_background.addLayout(self.v_time_msg)
+
+    def send(self, content, is_user):
+        """ Sends a message.
+
+        Args:
+            content (str): message content.
+        """
+        content_lbl = QLabel(content)
+        content_lbl.setContentsMargins(10, 13, 10, 13)
+        self._resize_label(content_lbl, int(0.6 * self.width()))
+        content_lbl.setStyleSheet(self._message_style)
+        content_lbl.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        msg_layout = QHBoxLayout()
+        if is_user:
+            msg_layout.addWidget(content_lbl)
+            msg_layout.setAlignment(Qt.AlignRight)
+
+        else:
+            msg_layout.addWidget(content_lbl)
+            msg_layout.setAlignment(Qt.AlignLeft)
+
+        self.v_messages.addLayout(msg_layout)
+        self._date = datetime.today()
+        self._time = datetime.now()
+        self.time.setText(f'{self._time.strftime("%H:%M:%S")}')
+        self._messages.append(content_lbl)
+
+    def resizeEvent(self, a0):
+        max_width = int(0.6*self.width())
+        for msg in self._messages:
+            self._resize_label(msg, max_width)
+        return super().resizeEvent(a0)
+
+    def _resize_label(self, label, max_width):
+        content_width = label.fontMetrics().boundingRect(label.text()).width() + 30
+        if content_width < max_width:
+            label.setFixedWidth(content_width)
+            label.setWordWrap(False)
+        else:
+            label.setFixedWidth(max_width)
+            label.setWordWrap(True)
+
+
+class User(ChatPiece):
+    """ Chat peice of user
+    """
+    name = 'User'
+    def __init__(self):
+        message_style = """ 
+            background: rgba(50,100,200,0.4);
+            color:white;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        """
+        super().__init__(message_style)
+        self.time.setAlignment(Qt.AlignRight)
+        self.v_messages.setAlignment(Qt.AlignRight)
+        self.h_background.setAlignment(Qt.AlignRight)
+
+    def send(self, content):
+        super().send(content, is_user=True)
+
+
+class Partner(ChatPiece):
+    """Chat peice of partner.
+    """
+    name = 'Partner'
+    def __init__(self):
+        message_style = """ 
+            background: rgba(50,50,50,0.4);
+            color:white;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        """
+        super().__init__(message_style)
+        self.time.setAlignment(Qt.AlignLeft)
+        self.h_background.setAlignment(Qt.AlignLeft)
+        self.v_messages.setAlignment(Qt.AlignLeft)
+        self.avatar = QLabel()
+        self.avatar.setFixedSize(50, 50)
+        self.avatar.setScaledContents(True)
+        self.avatar.setPixmap(round_corners(Icon.elephant))
+        self.v_avatar = QVBoxLayout()
+        self.v_avatar.setAlignment(Qt.AlignTop)
+        self.v_avatar.addWidget(self.avatar)
+        self.h_background.insertLayout(0, self.v_avatar)
+        
+    def send(self, content):
+        super().send(content, is_user=False)
+
+
+class MessageEnter(BaseWidget):
+    """ Place for entering and sending message.
+    """
+    def __init__(self):
+        super().__init__()
+        self.h_background = QHBoxLayout(self.background)
+        # Content entry
+        self.content_edit = QTextEdit()
+        self.content_edit.setFixedHeight(50)
+        self.content_edit.setPlaceholderText('Please enter message ...')
+        self.send_btn = QPushButton('>')
+        self.send_btn.setFixedSize(50, 50)
+        self.send_btn.setFlat(True)
+        self.send_btn.setStyleSheet(
+            f'background:rgb(200,200,255);color:white;border-radius:{int(self.send_btn.width()/2)}px')
+        self.h_background.addWidget(self.content_edit)
+        self.h_background.addWidget(self.send_btn)
+
+    @property
+    def content(self):
+        return self.content_edit.toPlainText()
+
+
+class AvatarWithStatus(QStackedWidget):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(50, 50)
+        # Avatar
+        self.avatar = QLabel()
+        self.avatar.setScaledContents(True)
+        self.avatar.setPixmap(round_corners('ui/assets/icons/user.png'))
+        self.avatar_widget = QWidget()
+        self.avatar_widget.setStyleSheet('background:transparent')
+        self.v_avatar = QVBoxLayout(self.avatar_widget)
+        self.v_avatar.addWidget(self.avatar)
+        self.v_avatar.setContentsMargins(0, 0, 0, 0)
+        # Status icon
+        self.status = QLabel()
+        self.status.setFixedSize(20, 20)
+        self.status.setStyleSheet(
+            f'background:gray; border:2px solid white; border-radius:{int(self.status.height()/2)}px')
+        self.status_widget = QWidget()
+        self.status_widget.setStyleSheet('background:transparent')
+        self.v_status = QVBoxLayout(self.status_widget)
+        self.v_status.setContentsMargins(0, 0, 0, 0)
+        self.v_status.addWidget(self.status)
+        self.v_status.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+        # Add to stackedwidget
+        self.addWidget(self.status_widget)
+
+        self.addWidget(self.avatar_widget)
+        # self.addWidget(self.status_widget)
+        # self.setCurrentIndex(0)
+        self.setCurrentIndex(1)
+        self.status_widget.setVisible(True)
+        # print(self.avatar_widget.isVisible())
+        # self.avatar_widget.setStyleSheet('background:blue')
+
+        # self.avatar_widget.setEnabled(True)
+        # self.avatar.setVisible(True)
+        #         # print(self.status_widget.isVisible())
+        # print(self.avatar_widget.isVisible())
+
+        # print(self.count())
