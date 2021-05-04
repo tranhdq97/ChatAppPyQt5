@@ -5,7 +5,7 @@ from PyQt5.QtGui import QFont, QFontMetrics
 from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QStackedWidget, QTextEdit
 from PyQt5.QtWidgets import QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 from ..base_page import BasePage, BaseWidget
-from ....config.config import *
+from ....configs.config import *
 from ....utils.util import *
 
 
@@ -110,8 +110,6 @@ class TalkerInfo(QWidget):
         self.name.setStyleSheet('color:white')
         self.status_icon = QLabel()
         self.status_icon.setFixedSize(20, 20)
-        self.status_icon.setStyleSheet(
-            f'border-radius: {int(self.status_icon.width()/2)};  background: green;')
         self.status = QLabel()
         self.status.setStyleSheet('color:white')
         # Add name and status layout into horizontal layout
@@ -130,17 +128,22 @@ class TalkerInfo(QWidget):
         self.h_layout.addLayout(self.v_status)
         # Set default
         self.set_status(Status.offline)
+        self.set_default()
 
     def _set_avatar(self, pixmap):
         rounded = round_corners(pixmap)
         self.avatar.setPixmap(rounded)
 
-    def set_status(self, status):
-        self.status.setText(status.name)
-        # self.status_icon.setStyleSheet(status.style)
-
     def _set_name(self, name):
         self.name.setText(name)
+
+    def set_default(self):
+        self.set_status(Status.offline)
+
+    def set_status(self, status):
+        self.status.setText(status.content)
+        self.status_icon.setStyleSheet(status.background + \
+            f'border-radius:{int(self.status_icon.height()/2)}')
 
     def update(self, name, avatar, status):
         self._set_name(name)
@@ -288,11 +291,11 @@ class Talker(BaseWidget):
         name_font = QFont('Ubuntu', 14, QFont.Bold)
         last_msg_font = QFont('Ubuntu', 10)
         # talker info
-        # self.avatar = AvatarWithStatus()
-        self.avatar = QLabel()
-        self.avatar.setFixedSize(50, 50)
-        self.avatar.setScaledContents(True)
-        self.avatar.setPixmap(round_corners(Icon.cat))
+        self.avatar = AvatarWithStatus(avatar=Icon.cat)
+        # self.avatar = QLabel()
+        # self.avatar.setFixedSize(50, 50)
+        # self.avatar.setScaledContents(True)
+        # self.avatar.setPixmap(round_corners(Icon.cat))
         # User name
         self.username = QLabel('Dong Quoc Tranh')
         self.username.setStyleSheet('color:white')
@@ -529,43 +532,52 @@ class MessageEnter(BaseWidget):
 
 
 class AvatarWithStatus(QStackedWidget):
-    def __init__(self):
+    def __init__(self, avatar, width=50, height=50):
         super().__init__()
-        self.setFixedSize(50, 50)
+        self.setFixedSize(width, height)
         # Avatar
         self.avatar = QLabel()
         self.avatar.setScaledContents(True)
-        self.avatar.setPixmap(round_corners('ui/assets/icons/user.png'))
+        self.avatar.setPixmap(round_corners(path=avatar))
         self.avatar_widget = QWidget()
+        self.avatar_widget.setFixedSize(width, height)
         self.avatar_widget.setStyleSheet('background:transparent')
         self.v_avatar = QVBoxLayout(self.avatar_widget)
         self.v_avatar.addWidget(self.avatar)
         self.v_avatar.setContentsMargins(0, 0, 0, 0)
         # Status icon
         self.status = QLabel()
-        self.status.setFixedSize(20, 20)
-        self.status.setStyleSheet(
-            f'background:gray; border:2px solid white; border-radius:{int(self.status.height()/2)}px')
+        self.status.setFixedSize(int(width/3), int(height/3))
         self.status_widget = QWidget()
-        self.status_widget.setStyleSheet('background:transparent')
+        self.status_widget.setFixedSize(width, height)
+        self.status_widget.setStyleSheet('background:transparent;')
         self.v_status = QVBoxLayout(self.status_widget)
         self.v_status.setContentsMargins(0, 0, 0, 0)
         self.v_status.addWidget(self.status)
         self.v_status.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         # Add to stackedwidget
-        self.addWidget(self.status_widget)
-
         self.addWidget(self.avatar_widget)
-        # self.addWidget(self.status_widget)
-        # self.setCurrentIndex(0)
+        self.addWidget(self.status_widget)
         self.setCurrentIndex(1)
-        self.status_widget.setVisible(True)
-        # print(self.avatar_widget.isVisible())
-        # self.avatar_widget.setStyleSheet('background:blue')
+        self.avatar_widget.setVisible(True)
+        # Init
+        self.set_default()
 
-        # self.avatar_widget.setEnabled(True)
-        # self.avatar.setVisible(True)
-        #         # print(self.status_widget.isVisible())
-        # print(self.avatar_widget.isVisible())
+    def set_default(self):
+        self.status.setStyleSheet(f'{Style.Status.offline}\
+            border-radius:{int(self.status.height()/2)}px;')
 
-        # print(self.count())
+    def change(self, status):
+        if status == Status.online.content:
+            self.status.setStyleSheet(f'{Style.Status.online}\
+                border-radius:{int(self.status.height()/2)}px;')
+        if status == Status.offline.content:
+            self.set_default()
+        if status == Status.away.content:
+            self.status.setStyleSheet(f'{Style.Status.away}\
+                border-radius:{int(self.status.height()/2)}px;')
+        if status == Status.busy.content:
+            self.status.setStyleSheet(f'{Style.Status.busy}\
+                border-radius:{int(self.status.height()/2)}px;')
+        else:
+            raise ValueError('Parsed unexpected argument.')

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QLabel, QPushButton, QSizePolicy, QStackedWidget, QW
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QFont
 from ...utils.util import *
-from ...config.config import *
+from ...configs.config import *
 from ui.src.utils.util import round_corners, set_icon
 from ..title_bar.title_bar import TitleBar
 from . import *

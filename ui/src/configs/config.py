@@ -6,6 +6,10 @@ from os import stat
 from PyQt5.QtWidgets import QScrollArea
 
 
+#################################### NameTupled ##############################
+status = namedtuple('Status', ['content', 'background'])
+
+
 class CustomEnum(Enum):
     def __get__(self, *args):
         return self.value
@@ -23,15 +27,6 @@ class Icon(CustomEnum):
     contacts        = 'ui/assets/icons/contacts.png'
 
 
-status = namedtuple('Status', ['name', 'style'])
-@unique
-class Status(CustomEnum):
-    online          = status("Active Now", "QLabel {background:rgb(0, 196, 0)}")
-    busy            = status("Busy", "QLabel {background:rgb(230, 30, 16)}")
-    away            = status("Away", "QLabel {background:rgb(237, 142, 0)}")
-    offline         = status("Offline", "QLabel {background:rgb(207, 207, 207)}")
-
-
 class Style(object):
     border = 'border:2px solid red'
     scroll_area = """
@@ -45,12 +40,33 @@ class Style(object):
         QScrollBar::sub-line {border: none; background: none;}   
     """
 
+
     class Tab(CustomEnum):
         chosen_bg           = 'background:rgb(0, 75, 100)'
+
+
+    class Status(CustomEnum):
+        online              = 'rgb(0, 196, 0)'
+        busy                = 'rgb(230, 30, 16)'
+        away                = 'rgb(237, 142, 0)'
+        offline             = 'rgb(207, 207, 207)'
+
+        def __get__(self, *args):
+            return f'background:{self.value};border:2px solid white;'
+
+        @staticmethod
+        def get_bg(status):
+            return status.split(';')[0] + ';'
+
+
+@unique
+class Status(CustomEnum):
+    online          = status("Active Now", f"{Style.Status.get_bg(Style.Status.online)}")
+    busy            = status("Busy"      , f"{Style.Status.get_bg(Style.Status.busy)}")
+    away            = status("Away"      , f"{Style.Status.get_bg(Style.Status.away)}")
+    offline         = status("Offline"   , f"{Style.Status.get_bg(Style.Status.offline)}")
 
 
 class Tab(CustomEnum):
     chat                    = 'Chat'
     home                    = 'Home'
-
-

@@ -1,15 +1,17 @@
 import PyQt5
 from PyQt5.QtGui import QBrush, QIcon, QPixmap, QPainter
 from PyQt5.QtCore import Qt, QSize
+from ..configs.config import Icon
 
 
-def round_corners(image, radius=None):
+def round_corners(path=Icon.cat, radius=None, pixmap=None):
     """ Rounds corners of an image.
 
     Args:
-        image (str): path of image
+        path (str): path of image
     """
-    pixmap = QPixmap(image)
+    if pixmap is None:
+        pixmap = QPixmap(path)
     if radius is None:
         radius = min(pixmap.height(), pixmap.width())
 

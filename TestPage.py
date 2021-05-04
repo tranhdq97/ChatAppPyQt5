@@ -36,15 +36,20 @@ class UI:
         self.h_bg.setSpacing(0)
         ######################
         self.stacked = QStackedWidget()
+        # self.stacked.setFixedSize(200, 200)
+        self.stacked.setContentsMargins(0, 0, 0, 0)
         self.avatar = QLabel()
         self.avatar.setScaledContents(True)
         self.avatar.setPixmap(round_corners(path))
         self.avatar_widget = QWidget()
-        self.avatar_widget.setStyleSheet('background:transparent')
+        # self.avatar_widget.setFixedSize(200, 200)
+        self.avatar_widget.setStyleSheet('background:transparent; border:2px solid green')
         self.avatar_layout = QVBoxLayout(self.avatar_widget)
         self.avatar_layout.addWidget(self.avatar)
-        self.status = QLabel('123')
-        self.status.setStyleSheet('background:green; border-radius:15; border:2px solid green')
+        self.avatar_layout.setAlignment(Qt.AlignCenter)
+
+        self.status = QLabel()
+        self.status.setStyleSheet('background:green; border-radius:15; border:2px solid white')
         self.status.setFixedSize(30, 30)
         self.status_widget = QWidget()
         self.status_widget.setStyleSheet('background:transparent')
@@ -52,13 +57,15 @@ class UI:
         self.status_layout.addWidget(self.status)
         self.status_layout.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         # self.status.setStyle()
-        self.stacked.addWidget(self.status_widget)
-        self.stacked.addWidget(self.avatar_widget)
         # self.stacked.addWidget(self.status_widget)
+        self.stacked.addWidget(self.avatar_widget)
+        self.stacked.addWidget(self.status_widget)
 
-        self.stacked.setCurrentIndex(0)
+        self.stacked.setCurrentIndex(1)
         
         self.avatar_widget.setVisible(True)
+        # self.status_widget.setVisible(True)
+
         # self.avatar.setScaledContents(True)
 
 

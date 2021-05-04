@@ -4,7 +4,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QPushButton
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
 from ...utils.util import *
-from ...config.config import *
+from ...configs.config import *
 
 
 class TitleBar(QWidget):
