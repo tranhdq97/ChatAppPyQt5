@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QLabel, QPushButton, QSizePolicy, QStackedWidget, QW
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QFont
 from ...utils.util import *
-from ...config.config import *
+from ...configs.config import *
 from ui.src.utils.util import round_corners, set_icon
 from ..title_bar.title_bar import TitleBar
 from . import *
@@ -48,7 +48,7 @@ class MainUI(object):
     def _add_tabs(self):
         self.chat_page = ChatPage(Tab.chat)
         self._add_single_tab(TabWidget(
-            self.chat_page, Icon.chat, icon_rounded=True, chosen=True))
+            self.chat_page, Icon.chat, icon_rounded=False, chosen=True))
         self.home_page = HomePage(Tab.home)
         self._add_single_tab(TabWidget(
             self.home_page, Icon.home, icon_rounded=True))
@@ -185,7 +185,7 @@ class TabWidget(QWidget):
         # Button
         self.btn = QPushButton()
         self.btn.setFlat(True)
-        self.set_size((50, 50))
+        self.set_size((60, 60))
         # Add to layout
         self.h_bg.addWidget(self.btn)
         self.v_central.addWidget(self.background)

@@ -1,4 +1,5 @@
 import time
+import random
 from PyQt5.QtWidgets import QMainWindow, QSizeGrip
 from PyQt5.QtCore import Qt
 from ui.src.views import MainUI, TitleBar
@@ -20,7 +21,6 @@ class MainController(QMainWindow):
             self.grips.append(grip)
 
         self._btn_clicked_connect()
-        self.show()
 
     ############################# Signals #############################
 
@@ -46,9 +46,15 @@ class MainController(QMainWindow):
         self.ui.title_bar.btn_restore.clicked.connect(
             self._title_bar_restore_btn_clicked
         )
+        self.ui.chat_page.top.search_box.contacts.clicked.connect(
+            self._chat_page_contacts_btn_clicked
+        )
+        self.ui.chat_page.body.conversation.msg_entry.send_btn.clicked.connect(
+            self._chat_page_send_btn_clicked
+        )
         for tab in self.ui.left_bar.tabs:
             tab.btn.clicked.connect(
-                lambda checked, t=tab : self._chose_tab(t)
+                lambda checked, t=tab : self._choose_tab(t)
             )
 
     #########################################################################
@@ -76,8 +82,23 @@ class MainController(QMainWindow):
 
     ############################ LeftBar ###############################
 
-    def _chose_tab(self, tab):
+    def _choose_tab(self, tab):
         tab.select()
         self._navigate(tab.page)
 
     ############################# Pages ################################
+    # Chat page
+
+    def _chat_page_contacts_btn_clicked(self):
+        self.ui.chat_page.body.history.switch(
+            self.ui.chat_page.top.search_box.on_contacts)
+        self.ui.chat_page.top.search_box.switch_contacts()
+
+    def _chat_page_send_btn_clicked(self):
+        content = self.ui.chat_page.body.conversation.msg_entry.content
+        if content != "":
+            if random.random() > 0.5:
+                self.ui.chat_page.body.conversation.send(content)
+            else:
+                self.ui.chat_page.body.conversation.receive(content)
+
